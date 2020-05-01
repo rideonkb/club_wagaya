@@ -1,0 +1,25 @@
+{
+  "name": "Club Wagaya",
+  "short_name": "GAYA",
+  "description": "Be heat up YouTube Live.",
+  "manifest_version": 2,
+  "version": "1.0.0",
+  "icons": {
+    "16": "images/icons/16.png",
+    "128": "images/icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/live_chat*",
+        "https://www.youtube.com/watch*"
+      ],
+      "js": [
+        "js/script.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "tabs"
+  ]
+}
