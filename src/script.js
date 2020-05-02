@@ -1,9 +1,10 @@
-'use strict';
 const LAUGH_WORD = ['草', 'w', 'W', 'ｗ', 'W', 'kusa', '笑', 'わろた']
-const HEAT_WORD = ['おおお', 'foo', '888']
-var cnt = {"LAUGH":0, "HEAT":0}
+const HEAT_WORD = ['おおお', 'foo', '888', 'あああ']
+var cnt = {"LAUGH":0, "HEAT":0, "CALL":0}
  
-const chat_viewer = document.querySelector('yt-live-chat-app');
+const selector = {
+  getChatDom: () => document.querySelector('yt-live-chat-app'),
+};
 
 const getComment = element => {
   let commentText = '';
@@ -21,7 +22,6 @@ const getComment = element => {
 };
 
 const countElement = async node => {
-  // TODO: コメントの内容を解析し，特定単語の個数をカウントする処理
   if (
     node.nodeName.toLowerCase() !== 'yt-live-chat-text-message-renderer' &&
     node.nodeName.toLowerCase() !== 'yt-live-chat-paid-message-renderer'
@@ -29,12 +29,20 @@ const countElement = async node => {
     return;
   }
 
-  const comment = getComment(mode.querySelector('#message'));
+  const comment = getComment(node.querySelector('#message'));
 
-  if (comment.includes(LAUGH_WORD)) cnt['LAUGH']++;
-  if (comment.includes(HEAT_WORD)) cnt['HEAT']++;
-  for (key in cnt){
-    if (cnt[key] > 40) {
+  for (var el of LAUGH_WORD){
+    if (comment.includes(el)) cnt['LAUGH']++;
+  }
+  
+  for (var el of HEAT_WORD){
+    if (comment.includes(el)) cnt['HEAT']++;
+  }
+
+  if (comment.includes("はい")) cnt['CALL']++;
+  
+  for (key in cnt) {
+    if (cnt[key] > 20) {
       playSound(key);
       cnt[key] = 0;
     }
@@ -42,32 +50,33 @@ const countElement = async node => {
 };
 
 const playSound = commentType => {
-  // TODO: 受け取ったcommentTypeによって対応するSEを鳴らす処理
   var audioElem = new Audio();
-  switch (contentType) {
-    case LAUGH:
-      audioElem.src = "../sounds/people-studio-laugh-large2.mp3"
+  switch (commentType) {
+    case "LAUGH":
+      audioElem.src = chrome.extension.getURL("sounds/people-studio-laugh-large2.mp3");
       audioElem.play();
       break;
-    case HEAT:
-      audioElem.src = "../sounds/people-stadium-cheer1.mp3"
+    case "HEAT":
+      audioElem.src = chrome.extension.getURL("sounds/people-stadium-cheer1.mp3");
       break;
+    case "CALL":
+      audioElem.src = chrome.extension.getURL("sounds/hai-hai1.mp3");
     default:
       break;
-  }
-  audioElem.pause();
+  }  
+  audioElem.play();
 }
 
-const main = async () => {
+const init = async () => {
   const observer = new MutationObserver(mutations => {
   mutations.forEach(mutation => {
     mutation.addedNodes.forEach(node => countElement(node));
   });
 });
 
-observer.observe(chat_viewer, {
+observer.observe(selector.getChatDom(), {
   childList: true,
   subtree: true,
 });
 };
-main();
+init();

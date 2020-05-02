@@ -10,16 +10,21 @@
   },
   "content_scripts": [
     {
+      "run_at": "document_end",
+      "all_frames": true,
       "matches": [
         "https://www.youtube.com/live_chat*",
         "https://www.youtube.com/watch*"
       ],
       "js": [
-        "js/script.js"
+        "script.js"
       ]
     }
   ],
   "permissions": [
     "tabs"
+  ],
+  "web_accessible_resources": [
+    "sounds/*.mp3"
   ]
 }
